@@ -1,6 +1,17 @@
 import 'package:daily_logger/models/currency.dart';
 
 class Log {
+  Log(
+      {this.title = '',
+      this.content = '',
+      this.tags = const [],
+      this.created}) {
+    created = created ?? DateTime.now();
+    isInstant = true;
+    isTask = false;
+    needsPayment = false;
+  }
+
   String title;
   String content;
   DateTime created;
@@ -19,4 +30,11 @@ class Log {
   bool needsPayment;
   Currency price;
   bool isPaid;
+
+  factory Log.empty() => Log();
+
+  @override
+  String toString() {
+    return 'log-${created.toLocal()}:  ${title} - ${content}';
+  }
 }
