@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:daily_logger/services/config_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
@@ -8,59 +7,71 @@ import 'package:daily_logger/models/log.dart';
 
 final _sl = GetIt.I;
 
-List<Log> stubLogs = [
-  Log(title: 'zero', content: 'two', id: 'id1'),
-  Log(title: 'naruto', content: 'uzumaki', id: 'id2')
-];
-
 class LogProvider extends ChangeNotifier {
-  Box _box;
-  Map<String, Log> _logs;
-  bool sortAscend;
-  int nextId;
+  ConfigProvider _config;
+  Box _logsBox;
+  // Map<int, Log> _logs;
   Set<String> filters;
 
   LogProvider() {
-    print('init provider');
+    // print('init provider');
 
-    var config = _sl.get<ConfigProvider>();
-    sortAscend = config.sortAscend;
-    nextId = config.nextId;
+    _config = _sl<ConfigProvider>();
 
-    _box = Hive.box('logs');
+    _logsBox = Hive.box('logs');
+    // _logs = Map<int, Log>.from(_logsBox.toMap());
+  }
 
-    _logs = Map<String, Log>.from(_box.toMap());
-    // stubLogs.forEach((e) => _logs[e.id] = e);
-    print('init finish');
+  bool get sortAscend => _config.sortAscend.value;
+  set sortAscend(bool newValue) => _config.sortAscend.value = newValue;
+
+  int get nextId =>
+      _logsBox.length == 0 ? 0 : _logsBox.keyAt(_logsBox.length - 1);
+
+  @override
+  dispose() {
+    super.dispose();
   }
 
   List<Log> get logs {
-    // TODO filter
+    // TODO implement filtering
     print('getLogs');
-
-    var data = _logs.entries
+    var data = Map<int, Log>.from(_logsBox.toMap())
+        .entries
         // .where((e) => e.value.tags.every((tag) => filters.contains(tag)))
         .map((e) => e.value)
         .toList();
-    data.sort((a, b) => (sortAscend ? -1 : 1) * a.created.compareTo(b.created));
+    data.sort((a, b) => (sortAscend ? 1 : -1) * a.created.compareTo(b.created));
 
     return data;
   }
 
   createLog(Log log) {
-    final rand = Random();
-    final id = rand.nextInt(65536).toString() + rand.nextInt(65536).toString();
     log
-      ..id = id
-      ..lastUpdate = DateTime.now()
-      ..created = DateTime.now();
-    _logs[id] = log;
+      ..id = nextId + 1
+      ..created = DateTime.now()
+      ..lastUpdate = DateTime.now();
+    _logsBox.put(log.id, log);
+    notifyListeners();
+  }
+
+  removeLog(Log log) {
+    _logsBox.delete(log.id);
     notifyListeners();
   }
 
   updateLog(Log log) {
-    log.lastUpdate = DateTime.now();
-    _logs[log.id] = log;
+    _logsBox.put(log.id, log
+        // (Log value) {
+        //   log.lastUpdate = DateTime.now();
+        //   _logs[log.id] = log;
+        //   return log;
+        // },
+        // ifAbsent: () {
+        //   print('log with id #${log.id} not found');
+        //   return log;
+        // },
+        );
     notifyListeners();
   }
 }

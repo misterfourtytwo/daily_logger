@@ -8,7 +8,7 @@ part 'log.g.dart';
 @HiveType(typeId: 0)
 class Log {
   @HiveField(0)
-  String id;
+  int id;
   @HiveField(1)
   LogTypes type;
   @HiveField(2)
@@ -44,23 +44,70 @@ class Log {
   @HiveField(15)
   bool isPaid;
 
-  Log(
-      {this.id,
-      this.title = '',
-      this.content = '',
-      this.tags = const [],
-      this.created}) {
-    // created = created ?? DateTime.now();
-    isInstant = true;
-    isTask = false;
-    isPayment = false;
+  DateTime get date =>
+      (isTask ? deadline : isInstant ? started : finished ?? started) ??
+      created;
+
+  Log();
+  factory Log.empty() => Log();
+  factory Log.note({
+    String title,
+    String content,
+  }) {
+    final log = Log();
+    log.type = LogTypes.note;
+    log.title = '';
+    log.content = '';
+    log.tags = [];
+    log.isInstant = true;
+    log.isTask = false;
+    log.isPayment = false;
+    return log;
   }
 
-  // factory Log.empty() => Log();
-  factory Log.note() {}
-  factory Log.continuous() {}
-  factory Log.payment() {}
-  factory Log.task() {}
+  factory Log.continuous({
+    String title,
+    String content,
+    DateTime start,
+    DateTime finish,
+  }) {
+    final log = Log();
+    log.type = LogTypes.continuous;
+    log.title = title ?? '';
+    log.content = content ?? '';
+    log.tags = [];
+    log.isInstant = false;
+    log.started = start;
+    log.finished = finish;
+    log.isTask = false;
+    log.isPayment = false;
+    return log;
+  }
+
+  factory Log.payment() {
+    final log = Log();
+    log.type = LogTypes.payment;
+    log.title = '';
+    log.content = '';
+    log.tags = [];
+    log.isInstant = true;
+    log.isTask = false;
+    log.isPayment = true;
+    log.isPaid = false;
+    log.price = Currency();
+    return log;
+  }
+  factory Log.task() {
+    final log = Log();
+    log.type = LogTypes.note;
+    log.title = '';
+    log.content = '';
+    log.tags = [];
+    log.isInstant = true;
+    log.isTask = false;
+    log.isPayment = false;
+    return log;
+  }
 
   Duration get elapsed => isInstant ? 0 : started.difference(finished);
 

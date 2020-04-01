@@ -21,6 +21,8 @@ class LogTypesAdapter extends TypeAdapter<LogTypes> {
         return LogTypes.task;
       case 3:
         return LogTypes.continuous;
+      case 4:
+        return LogTypes.complex;
       default:
         return null;
     }
@@ -40,6 +42,9 @@ class LogTypesAdapter extends TypeAdapter<LogTypes> {
         break;
       case LogTypes.continuous:
         writer.writeByte(3);
+        break;
+      case LogTypes.complex:
+        writer.writeByte(4);
         break;
     }
   }

@@ -12,4 +12,6 @@ enum LogTypes {
   task,
   @HiveField(3)
   continuous,
+  @HiveField(4)
+  complex,
 }

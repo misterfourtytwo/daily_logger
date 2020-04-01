@@ -9,9 +9,9 @@ class LogCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.blueGrey[600],
+      color: Theme.of(context).accentColor,
       child: ListTile(title: Text(log.toString())),
-      margin: EdgeInsets.only(bottom: 8),
+      margin: EdgeInsets.only(top: 8),
     );
   }
 }

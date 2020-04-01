@@ -1,6 +1,11 @@
+import 'package:daily_logger/services/config_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:provider/provider.dart';
 
 import 'package:daily_logger/views/home.dart';
+
+final _sl = GetIt.I;
 
 class App extends StatelessWidget {
   const App({Key key}) : super(key: key);
@@ -9,7 +14,39 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Daily logger',
-      home: Home(),
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        primarySwatch: Colors.blueGrey,
+        // primaryColorDark: Colors.blueGrey,
+        primaryColor: Colors.blueGrey[900],
+        accentColor: Colors.blueGrey[700],
+        // canvasColor: Colors.orange,
+        // highlightColor: Colors.pink,
+        // splashColor: Colors.blueGrey[400],
+        // cardColor: Colors.deepPurple,
+        disabledColor: Colors.grey[400],
+        cursorColor: Colors.blueGrey[200],
+
+        // colorScheme: ColorScheme.dark(
+        //   primary: Colors.blueGrey[900],
+        //   primaryVariant: Colors.blueGrey[700],
+        //   secondary: Colors.blueGrey[600],
+        //   secondaryVariant: Colors.teal[600],
+        //   surface: Colors.blueGrey[700],
+        //   background: Colors.blueGrey[900],
+        //   error: Colors.red,
+        //   onPrimary: Colors.red,
+        //   onSecondary: Colors.red,
+        //   onSurface: Colors.red,
+        //   onBackground: Colors.red,
+        //   onError: Colors.red,
+        //   brightness: Brightness.dark,
+        // ),
+      ),
+      home: ChangeNotifierProvider.value(
+        value: _sl<ConfigProvider>(),
+        child: Home(),
+      ),
     );
   }
 }

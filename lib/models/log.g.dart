@@ -16,58 +16,60 @@ class LogAdapter extends TypeAdapter<Log> {
     var fields = <int, dynamic>{
       for (var i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Log(
-      id: fields[0] as String,
-      title: fields[1] as String,
-      content: fields[2] as String,
-      tags: (fields[5] as List)?.cast<String>(),
-      created: fields[3] as DateTime,
-    )
-      ..lastUpdate = fields[4] as DateTime
-      ..isInstant = fields[6] as bool
-      ..started = fields[7] as DateTime
-      ..finished = fields[8] as DateTime
-      ..isTask = fields[9] as bool
-      ..deadline = fields[10] as DateTime
-      ..completed = fields[11] as bool
-      ..isPayment = fields[12] as bool
-      ..price = fields[13] as Currency
-      ..isPaid = fields[14] as bool;
+    return Log()
+      ..id = fields[0] as int
+      ..type = fields[1] as LogTypes
+      ..title = fields[2] as String
+      ..content = fields[3] as String
+      ..created = fields[4] as DateTime
+      ..lastUpdate = fields[5] as DateTime
+      ..tags = (fields[6] as List)?.cast<String>()
+      ..isInstant = fields[7] as bool
+      ..started = fields[8] as DateTime
+      ..finished = fields[9] as DateTime
+      ..isTask = fields[10] as bool
+      ..deadline = fields[11] as DateTime
+      ..completed = fields[12] as bool
+      ..isPayment = fields[13] as bool
+      ..price = fields[14] as Currency
+      ..isPaid = fields[15] as bool;
   }
 
   @override
   void write(BinaryWriter writer, Log obj) {
     writer
-      ..writeByte(15)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.title)
+      ..write(obj.type)
       ..writeByte(2)
-      ..write(obj.content)
+      ..write(obj.title)
       ..writeByte(3)
-      ..write(obj.created)
+      ..write(obj.content)
       ..writeByte(4)
-      ..write(obj.lastUpdate)
+      ..write(obj.created)
       ..writeByte(5)
-      ..write(obj.tags)
+      ..write(obj.lastUpdate)
       ..writeByte(6)
-      ..write(obj.isInstant)
+      ..write(obj.tags)
       ..writeByte(7)
-      ..write(obj.started)
+      ..write(obj.isInstant)
       ..writeByte(8)
-      ..write(obj.finished)
+      ..write(obj.started)
       ..writeByte(9)
-      ..write(obj.isTask)
+      ..write(obj.finished)
       ..writeByte(10)
-      ..write(obj.deadline)
+      ..write(obj.isTask)
       ..writeByte(11)
-      ..write(obj.completed)
+      ..write(obj.deadline)
       ..writeByte(12)
-      ..write(obj.isPayment)
+      ..write(obj.completed)
       ..writeByte(13)
-      ..write(obj.price)
+      ..write(obj.isPayment)
       ..writeByte(14)
+      ..write(obj.price)
+      ..writeByte(15)
       ..write(obj.isPaid);
   }
 }

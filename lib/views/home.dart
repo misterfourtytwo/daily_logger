@@ -14,13 +14,13 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blueGrey[900],
+      backgroundColor: Theme.of(context).primaryColor,
       body: SafeArea(
         child: Column(
           children: <Widget>[
             Expanded(
               child: ChangeNotifierProvider.value(
-                value: _sl.get<LogProvider>(),
+                value: _sl<LogProvider>(),
                 child: Consumer<LogProvider>(
                   builder: (context, provider, child) => ListView(
                     children: provider.logs
