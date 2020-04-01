@@ -38,6 +38,7 @@ _initHive() async {
   await Hive.openBox('config');
   await Hive.openBox('logs')
       // ..clear()
+      //
       ;
 }
 

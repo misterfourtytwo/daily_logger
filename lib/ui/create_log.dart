@@ -1,3 +1,4 @@
+import 'package:daily_logger/models/currency.dart';
 import 'package:daily_logger/models/log_types.dart';
 import 'package:daily_logger/services/config_provider.dart';
 import 'package:daily_logger/services/log_provider.dart';
@@ -138,14 +139,28 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
                         ? () => _config.activeType.value = LogTypes.payment
                         : null,
                   ),
-                  if (value == LogTypes.payment) Text('Already paid'),
-                  if (value == LogTypes.payment)
+                  if (value == LogTypes.payment) ...[
+                    Text('Price'),
+                    Container(
+                      width: 64,
+                      child: TextField(
+                        controller: _priceController,
+                        textAlign: TextAlign.end,
+                        maxLines: 1,
+                        keyboardType: TextInputType.numberWithOptions(
+                          signed: true,
+                          decimal: true,
+                        ),
+                      ),
+                    ),
+                    Text('Already paid?'),
                     Checkbox(
                       value: paidCheckbox ?? false,
                       onChanged: (newValue) => setState(() {
                         paidCheckbox = newValue;
                       }),
                     ),
+                  ],
                 ]),
               )),
 
@@ -166,6 +181,8 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
                             log.title = _titleController.text;
                             log.content = _contentController.text;
                             log.isPaid = paidCheckbox;
+                            log.price = Currency(
+                                double.tryParse(_priceController.text));
                             break;
                           case LogTypes.note:
                           default:
@@ -174,9 +191,12 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
                             log.content = _contentController.text;
                         }
                         _logs.createLog(log);
-                        _titleController.clear();
-                        _contentController.clear();
-                        paidCheckbox = false;
+                        setState(() {
+                          _titleController.clear();
+                          _contentController.clear();
+                          _priceController.clear();
+                          paidCheckbox = false;
+                        });
                       },
                 child: Text(
                   'Log!',
