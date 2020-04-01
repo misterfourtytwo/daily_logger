@@ -1,7 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'package:daily_logger/app.dart';
+import 'package:daily_logger/models/log.dart';
+import 'package:daily_logger/models/log_types.dart';
+import 'package:daily_logger/services/log_provider.dart';
+import 'package:daily_logger/services/config_provider.dart';
 
-void main() {
+final _sl = GetIt.instance;
+
+void main() async {
+  await _initHive();
+  _initServices();
   runApp(App());
+}
+
+const _desktopDbPath = '/home/mr42/Public/hive';
+
+/// open database and needed tables
+_initHive() async {
+  if (UniversalPlatform.isWeb ||
+      UniversalPlatform.isAndroid ||
+      UniversalPlatform.isIOS) {
+    await Hive.initFlutter();
+  } else {
+    Hive.init(_desktopDbPath);
+  }
+
+  Hive.registerAdapter(LogTypesAdapter());
+  Hive.registerAdapter(LogAdapter());
+
+  await Hive.openBox('config');
+  await Hive.openBox('logs');
+}
+
+/// start and expose needed services
+_initServices() {
+  _sl.registerSingleton<ConfigProvider>(ConfigProvider());
+  _sl.registerSingleton<LogProvider>(LogProvider());
 }

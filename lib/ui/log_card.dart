@@ -11,7 +11,7 @@ class LogCardWidget extends StatelessWidget {
     return Container(
       color: Colors.blueGrey[600],
       child: ListTile(title: Text(log.toString())),
-      margin: EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.only(bottom: 8),
     );
   }
 }
