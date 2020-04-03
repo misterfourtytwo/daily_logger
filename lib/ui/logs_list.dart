@@ -39,8 +39,6 @@ class _LogListWidgetState extends State<LogListWidget> {
   @override
   void dispose() {
     provider.removeScroller('logListWidget');
-    // _feedPositionController.dispose();
-    // _feedPositionListener.itemPositions
     super.dispose();
   }
 
@@ -60,24 +58,25 @@ class _LogListWidgetState extends State<LogListWidget> {
   }
 
   void scrollTo(int element) {
+    // adding callback, so we won't try scrolling before items are added to the list.
     WidgetsBinding.instance.scheduleFrameCallback((timeStamp) {
       if (_feedPositionController.isAttached)
         print('scroll to element $element');
       {
         final target = _feedPositionListener.itemPositions.value
             .firstWhere((e) => e.index == element, orElse: () => null);
-        print(target);
-        if (target == null ||
-            (target.itemLeadingEdge < 0 && target.itemTrailingEdge > 1.0)) {
-          print(_feedPositionListener.itemPositions);
+        // print(target);
 
+        // check if item is already on the screen
+        if (target == null ||
+            target.itemLeadingEdge < 0 ||
+            target.itemTrailingEdge > 1.0) {
           _feedPositionController.scrollTo(
               index: element,
               duration: Duration(seconds: 1),
               curve: Curves.easeInOutCubic
               //
               );
-          print(_feedPositionListener.itemPositions);
         }
       }
     });

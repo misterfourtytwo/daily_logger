@@ -5,6 +5,14 @@ import 'package:daily_logger/models/currency.dart';
 
 part 'log.g.dart';
 
+const _readableTypes = {
+  LogTypes.task: 'task',
+  LogTypes.note: 'note',
+  LogTypes.payment: 'payment',
+  LogTypes.complex: 'complex',
+  LogTypes.continuous: 'continuous',
+};
+
 @HiveType(typeId: 0)
 class Log {
   @HiveField(0)
@@ -47,6 +55,7 @@ class Log {
   DateTime get date =>
       (isTask ? deadline : isInstant ? started : finished ?? started) ??
       created;
+  String get readableType => _readableTypes[type];
 
   Log();
   factory Log.empty() => Log();
