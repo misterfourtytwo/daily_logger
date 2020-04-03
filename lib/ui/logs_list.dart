@@ -47,30 +47,39 @@ class _LogListWidgetState extends State<LogListWidget> {
   @override
   Widget build(BuildContext context) {
     return ScrollablePositionedList.builder(
-      itemScrollController: _feedPositionController,
-      itemPositionsListener: _feedPositionListener,
       initialScrollIndex: max(1, provider.logs.length) - 1,
       itemCount: provider.logs.length,
+      // reverse: true,
+      // physics: FixedExtentScrollPhysics(),
       itemBuilder: (context, i) => provider.logs.isEmpty
           ? ListTile(title: Text('Log is empty'))
           : LogCardWidget(log: provider.logs[i]),
+      itemScrollController: _feedPositionController,
+      itemPositionsListener: _feedPositionListener,
     );
   }
 
   void scrollTo(int element) {
-    // print('scroll to element $element');
-    if (_feedPositionController.isAttached &&
-        !_feedPositionListener.itemPositions.value.contains(element)) {
-      // print(_feedPositionListener.itemPositions);
+    WidgetsBinding.instance.scheduleFrameCallback((timeStamp) {
+      if (_feedPositionController.isAttached)
+        print('scroll to element $element');
+      {
+        final target = _feedPositionListener.itemPositions.value
+            .firstWhere((e) => e.index == element, orElse: () => null);
+        print(target);
+        if (target == null ||
+            (target.itemLeadingEdge < 0 && target.itemTrailingEdge > 1.0)) {
+          print(_feedPositionListener.itemPositions);
 
-      _feedPositionController.scrollTo(
-          index: element,
-          // alignment: 1,
-          duration: Duration(seconds: 1),
-          curve: Curves.easeInOutCubic
-          //
-          );
-      // print(_feedPositionListener.itemPositions);
-    }
+          _feedPositionController.scrollTo(
+              index: element,
+              duration: Duration(seconds: 1),
+              curve: Curves.easeInOutCubic
+              //
+              );
+          print(_feedPositionListener.itemPositions);
+        }
+      }
+    });
   }
 }

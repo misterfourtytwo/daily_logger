@@ -51,8 +51,9 @@ class LogProvider extends ChangeNotifier {
       _logs.sort(
           (a, b) => (sortAscend ? 1 : -1) * a.created.compareTo(b.created));
 
-      scrollTarget = lastLog == null ? _logs.length : _logs.indexOf(lastLog);
-      _scrollers.forEach((key, value) => value(scrollTarget - 1));
+      scrollTarget =
+          lastLog == null ? _logs.length - 1 : _logs.indexOf(lastLog);
+      _scrollers.forEach((key, value) => value(scrollTarget));
       lastLog = null;
 
       logsUpdated = false;
@@ -67,7 +68,7 @@ class LogProvider extends ChangeNotifier {
       ..lastUpdate = DateTime.now();
     _logsBox.put(log.id, log);
     logsUpdated = true;
-    lastLog = log;
+    // lastLog = log;
     notifyListeners();
   }
 
