@@ -57,17 +57,17 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
     double buttonWidth = 180;
 
     return Container(
-      height: height,
+      height: height + 12,
       decoration: BoxDecoration(
         // color: Colors.blueGrey[700],
         border: Border(
           top: BorderSide(
-            // color: Colors.orange,
+            color: Theme.of(context).dividerColor,
             width: 6.0,
           ),
         ),
       ),
-      padding: EdgeInsets.all(8),
+      padding: EdgeInsets.only(top: 12, left: 16, right: 16, bottom: 12),
       child: Stack(
         children: <Widget>[
           Positioned(
