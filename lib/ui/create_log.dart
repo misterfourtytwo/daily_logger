@@ -1,12 +1,11 @@
-import 'package:daily_logger/models/currency.dart';
+import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+
+import 'package:daily_logger/models/log.dart';
+import 'package:daily_logger/models/payment.dart';
 import 'package:daily_logger/models/log_types.dart';
 import 'package:daily_logger/services/config_provider.dart';
 import 'package:daily_logger/services/log_provider.dart';
-import 'package:flutter/material.dart';
-
-import 'package:daily_logger/models/log.dart';
-import 'package:get_it/get_it.dart';
-import 'package:provider/provider.dart';
 
 final _sl = GetIt.instance;
 
@@ -96,6 +95,7 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
                 right: 0,
                 child: TextField(
                   style: TextStyle(color: Colors.blue),
+                  minLines: 1,
                   maxLines: 4,
                   decoration: InputDecoration(hintText: 'Log content'),
                   controller: _contentController,
@@ -123,7 +123,17 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
                     IconButton(
                       icon: Icon(
                         Icons.note,
-                        size: 32,
+                        size: 24,
+                        color: Colors.teal,
+                      ),
+                      onPressed: value != LogTypes.note
+                          ? () => _config.activeType.value = LogTypes.note
+                          : null,
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.track_changes,
+                        size: 24,
                         color: Colors.teal,
                       ),
                       onPressed: value != LogTypes.note
@@ -133,11 +143,11 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
                     IconButton(
                       icon: Icon(
                         Icons.payment,
-                        size: 32,
+                        size: 24,
                         color: Colors.yellow,
                       ),
-                      onPressed: value != LogTypes.payment
-                          ? () => _config.activeType.value = LogTypes.payment
+                      onPressed: value != LogTypes.task
+                          ? () => _config.activeType.value = LogTypes.task
                           : null,
                     ),
                     if (value == LogTypes.payment) ...[
@@ -181,8 +191,8 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
                               log = Log.payment();
                               log.title = _titleController.text;
                               log.content = _contentController.text;
-                              log.isPaid = paidCheckbox;
-                              log.price = Currency(
+                              log.alreadyPaid = paidCheckbox;
+                              log.price = Payment(
                                   double.tryParse(_priceController.text));
                               break;
                             case LogTypes.note:

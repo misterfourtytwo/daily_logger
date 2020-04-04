@@ -31,8 +31,8 @@ class LogAdapter extends TypeAdapter<Log> {
       ..deadline = fields[11] as DateTime
       ..completed = fields[12] as bool
       ..isPayment = fields[13] as bool
-      ..price = fields[14] as Currency
-      ..isPaid = fields[15] as bool;
+      ..price = fields[14] as Payment
+      ..alreadyPaid = fields[15] as bool;
   }
 
   @override
@@ -70,6 +70,6 @@ class LogAdapter extends TypeAdapter<Log> {
       ..writeByte(14)
       ..write(obj.price)
       ..writeByte(15)
-      ..write(obj.isPaid);
+      ..write(obj.alreadyPaid);
   }
 }

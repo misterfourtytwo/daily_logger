@@ -1,9 +1,9 @@
-import 'package:daily_logger/services/config_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 
 import 'package:daily_logger/views/home.dart';
+import 'package:daily_logger/services/config_provider.dart';
 
 final _sl = GetIt.I;
 
@@ -15,19 +15,20 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Daily logger',
       theme: ThemeData(
+        fontFamily: 'Fira Code',
         brightness: Brightness.dark,
-        primarySwatch: Colors.blueGrey,
+        // primarySwatch: Colors.brown,
         // primaryColorDark: Colors.blueGrey,
-        primaryColor: Colors.blueGrey[900],
-        accentColor: Colors.blueGrey[700],
+        // primaryColor: Colors.blueGrey[900],
+        // accentColor: Colors.blueGrey[800],
         // canvasColor: Colors.orange,
         // highlightColor: Colors.pink,
         // splashColor: Colors.blueGrey[400],
         // cardColor: Colors.deepPurple,
-        disabledColor: Colors.grey[400],
-        cursorColor: Colors.blueGrey[200],
+        // disabledColor: Colors.grey[400],
+        // cursorColor: Colors.blueGrey[200],
 
-        // colorScheme: ColorScheme.dark(
+        // colorScheme: ColorScheme(
         //   primary: Colors.blueGrey[900],
         //   primaryVariant: Colors.blueGrey[700],
         //   secondary: Colors.blueGrey[600],

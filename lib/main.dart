@@ -6,7 +6,7 @@ import 'package:universal_platform/universal_platform.dart';
 
 import 'package:daily_logger/app.dart';
 import 'package:daily_logger/models/log.dart';
-import 'package:daily_logger/models/currency.dart';
+import 'package:daily_logger/models/payment.dart';
 import 'package:daily_logger/models/log_types.dart';
 import 'package:daily_logger/services/log_provider.dart';
 import 'package:daily_logger/services/config_provider.dart';
@@ -19,7 +19,9 @@ void main() async {
   runApp(App());
 }
 
-const _desktopDbPath = '/home/mr42/Public/flutter/hive';
+const _desktopDbPath =
+// './db';
+    '/home/mr42/Public/flutter/hive';
 
 /// open database and boxes in it
 _initHive() async {
@@ -31,7 +33,7 @@ _initHive() async {
     Hive.init(_desktopDbPath);
   }
 
-  Hive.registerAdapter(CurrencyAdapter());
+  Hive.registerAdapter(PaymentAdapter());
   Hive.registerAdapter(LogTypesAdapter());
   Hive.registerAdapter(LogAdapter());
 

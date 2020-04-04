@@ -1,7 +1,7 @@
 import 'package:daily_logger/models/log_types.dart';
 import 'package:hive/hive.dart';
 
-import 'package:daily_logger/models/currency.dart';
+import 'package:daily_logger/models/payment.dart';
 
 part 'log.g.dart';
 
@@ -48,9 +48,9 @@ class Log {
   @HiveField(13)
   bool isPayment;
   @HiveField(14)
-  Currency price;
+  Payment price;
   @HiveField(15)
-  bool isPaid;
+  bool alreadyPaid;
 
   DateTime get date =>
       (isTask ? deadline : isInstant ? started : finished ?? started) ??
@@ -93,6 +93,19 @@ class Log {
     return log;
   }
 
+  factory Log.task() {
+    final log = Log();
+    log.type = LogTypes.task;
+    log.title = '';
+    log.content = '';
+    log.tags = [];
+    log.isInstant = true;
+    log.isTask = true;
+    log.completed = false;
+    log.isPayment = false;
+    return log;
+  }
+
   factory Log.payment() {
     final log = Log();
     log.type = LogTypes.payment;
@@ -102,21 +115,29 @@ class Log {
     log.isInstant = true;
     log.isTask = false;
     log.isPayment = true;
-    log.isPaid = false;
-    log.price = Currency();
+    log.alreadyPaid = false;
+    log.price = Payment();
     return log;
   }
-  factory Log.task() {
-    final log = Log();
-    log.type = LogTypes.note;
-    log.title = '';
-    log.content = '';
-    log.tags = [];
-    log.isInstant = true;
-    log.isTask = false;
-    log.isPayment = false;
-    return log;
-  }
+
+  // factory Log.complex({
+  //   isInstant = true,
+  //   tags = const [],
+  //   isTask = false,
+  //   isPayment = false,
+  // }) {
+  //   final log = Log();
+  //   log.type = LogTypes.complex;
+  //   log.title = '';
+  //   log.content = '';
+  //   log.tags = tags;
+  //   log.isInstant = isInstant;
+  //   log.isTask = false;
+  //   log.isPayment = true;
+  //   log.alreadyPaid = false;
+  //   log.price = Payment();
+  //   return log;
+  // }
 
   Duration get elapsed => isInstant ? 0 : started.difference(finished);
 

@@ -1,62 +1,128 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import 'package:daily_logger/models/log.dart';
 import 'package:daily_logger/models/log_types.dart';
+import 'package:daily_logger/ui/date_bubble.dart';
+import 'package:daily_logger/utils/date_extensions.dart';
 
 const _typeColors = {
   LogTypes.note: Colors.teal,
   LogTypes.payment: Colors.yellow,
 };
-final _formatter = DateFormat.Hms();
 
 class LogCardWidget extends StatelessWidget {
   final Log log;
-
-  const LogCardWidget({this.log, Key key}) : super(key: key);
+  final bool showDate;
+  const LogCardWidget({this.log, this.showDate = false, Key key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      // color: Theme.of(context).accentColor,
-      decoration: BoxDecoration(
-          border: Border(
-        top: BorderSide(
-          color: Theme.of(context).dividerColor,
-          width: 1,
-        ),
-      )),
-      padding: EdgeInsets.all(12),
-      // alignment: Alignment.centerLeft,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    return LayoutBuilder(
+      builder: (context, size) => SizedBox(
+          // width: size.maxWidth,
+          // padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
+          // alignment: Alignment.centerLeft,
+          child: Column(
         children: <Widget>[
-          RichText(
-              // textAlign: TextAlign.end,
-              text: TextSpan(
-            children: [
-              TextSpan(text: '${_formatter.format(log.date)} '),
-              TextSpan(
-                text: log.title,
-                style: TextStyle(fontWeight: FontWeight.bold),
+          if (showDate) ...[
+            Divider(
+              height: 2,
+            ),
+            SizedBox(height: 4),
+            Container(
+              // margin: EdgeInsets.only(top: 8),
+              child: DateBubblepWidget(log.date),
+              width: max(size.maxWidth * 0.3, 60),
+            ),
+            SizedBox(height: 4),
+          ],
+          Divider(
+            height: 2,
+          ),
+          SizedBox(height: 4),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                  alignment: Alignment.topCenter,
+                  width: max(size.maxWidth * 0.09, 48),
+                  child: Text(
+                    log.date.hourMinute,
+                    style: TextStyle(color: Colors.white60),
+                  )),
+              Expanded(
+                child: Container(
+                  child: Text(
+                    // text:
+                    log.title,
+                    style: TextStyle(
+                      fontSize: 14,
+                      // fontWeight: FontWeight.w500,
+                    ),
+                    // ),
+                  ),
+                ),
               ),
-              TextSpan(
-                  text: ' [${log.readableType}]',
+              Container(
+                width: max(size.maxWidth * 0.16, 66),
+                // color: Colors.red,
+                alignment: Alignment.topRight,
+                child: RichText(
+
+                    // textAlign: TextAlign.end,
+                    text: TextSpan(
+                  text: '[${log.readableType}]',
                   style: TextStyle(
                     color: _typeColors[log.type],
-                  )),
+                  ),
+                )
+                    // ),
+                    ),
+              )
             ],
-          )),
-          Padding(
-            padding: EdgeInsets.only(left: 16.0, top: 4.0),
-            child: RichText(
-              text: TextSpan(text: log.content),
-              textAlign: TextAlign.end,
-            ),
           ),
+          if (!log.isInstant) ...[
+            Container(height: 42, color: Colors.green),
+            // if (log.i)
+          ],
+          if (log.isPayment) ...[
+            Row(
+              children: [
+                Container(
+                  width: size.maxWidth * 0.2,
+                  alignment: Alignment.topRight,
+                  child: RichText(
+                      text: TextSpan(children: [
+                    TextSpan(text: 'Price: '),
+                    TextSpan(text: log.price.toString()),
+                  ])),
+                ),
+                Container(
+                  width: size.maxWidth * 0.2,
+                  alignment: Alignment.topRight,
+                  child: Text('Paid? '),
+                ),
+              ],
+            ),
+          ],
+          if (log.content != null && log.content.isNotEmpty)
+            Container(
+              padding: EdgeInsets.only(left: size.maxWidth * 0.05),
+              alignment: Alignment.topLeft,
+              child: Text(
+                log.content,
+                style: TextStyle(
+                  fontWeight: FontWeight.w300,
+                  color: Colors.white60,
+                ),
+              ),
+            ),
+          SizedBox(height: 4),
         ],
-      ),
+      )),
     );
   }
 }

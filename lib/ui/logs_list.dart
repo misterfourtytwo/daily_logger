@@ -1,12 +1,11 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:provider/provider.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'package:daily_logger/services/log_provider.dart';
 import 'package:daily_logger/ui/log_card.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:daily_logger/utils/date_extensions.dart';
 
 class LogListWidget extends StatefulWidget {
   const LogListWidget({this.provider, Key key}) : super(key: key);
@@ -51,7 +50,11 @@ class _LogListWidgetState extends State<LogListWidget> {
       // physics: FixedExtentScrollPhysics(),
       itemBuilder: (context, i) => provider.logs.isEmpty
           ? ListTile(title: Text('Log is empty'))
-          : LogCardWidget(log: provider.logs[i]),
+          : LogCardWidget(
+              log: provider.logs[i],
+              showDate: i == 0 ||
+                  !provider.logs[i].date
+                      .sameDateWith(provider.logs[i - 1].date)),
       itemScrollController: _feedPositionController,
       itemPositionsListener: _feedPositionListener,
     );
