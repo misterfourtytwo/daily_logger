@@ -6,6 +6,8 @@ class ConfigProvider extends ChangeNotifier {
   Box _box;
 
   ValueNotifier<bool> sortAscend;
+  ValueNotifier<bool> grepToggle;
+
   // int get nextId => _box.get('nextId', defaultValue: 0);
   // set nextId(int newValue) => _box.put('nextId', newValue);
   ValueNotifier<LogTypes> activeType;
@@ -19,7 +21,14 @@ class ConfigProvider extends ChangeNotifier {
       _box.put('sortAscend', sortAscend.value);
     });
 
-    // create log
+    // log
+    // grep
+    grepToggle =
+        ValueNotifier<bool>(_box.get('grepToggle', defaultValue: false));
+    sortAscend.addListener(() {
+      _box.put('grepToggle', grepToggle.value);
+    });
+    // type
     activeType = ValueNotifier<LogTypes>(
         _box.get('activeType', defaultValue: LogTypes.note));
     activeType.addListener(() {
@@ -29,6 +38,7 @@ class ConfigProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    grepToggle.dispose();
     sortAscend.dispose();
     activeType.dispose();
     super.dispose();

@@ -7,15 +7,20 @@ import 'package:daily_logger/models/log_types.dart';
 import 'package:daily_logger/ui/date_bubble.dart';
 import 'package:daily_logger/utils/date_extensions.dart';
 
-const _typeColors = {
+final logTypeColors = {
   LogTypes.note: Colors.teal,
-  LogTypes.payment: Colors.yellow,
+  LogTypes.payment: Colors.amber,
+  LogTypes.task: Colors.blue,
+  LogTypes.continuous: Colors.lightGreen[400],
 };
 
 class LogCardWidget extends StatelessWidget {
   final Log log;
   final bool showDate;
-  const LogCardWidget({this.log, this.showDate = false, Key key})
+  final bool currentEdit;
+
+  const LogCardWidget(
+      {this.log, this.showDate = false, this.currentEdit = false, Key key})
       : super(key: key);
 
   @override
@@ -68,19 +73,14 @@ class LogCardWidget extends StatelessWidget {
               ),
               Container(
                 width: max(size.maxWidth * 0.16, 66),
-                // color: Colors.red,
                 alignment: Alignment.topRight,
                 child: RichText(
-
-                    // textAlign: TextAlign.end,
                     text: TextSpan(
                   text: '[${log.readableType}]',
                   style: TextStyle(
-                    color: _typeColors[log.type],
+                    color: logTypeColors[log.type],
                   ),
-                )
-                    // ),
-                    ),
+                )),
               )
             ],
           ),
@@ -91,26 +91,46 @@ class LogCardWidget extends StatelessWidget {
           if (log.isPayment) ...[
             Row(
               children: [
-                Container(
-                  width: size.maxWidth * 0.2,
-                  alignment: Alignment.topRight,
-                  child: RichText(
-                      text: TextSpan(children: [
-                    TextSpan(text: 'Price: '),
-                    TextSpan(text: log.price.toString()),
-                  ])),
+                SizedBox(
+                  width: size.maxWidth * .09,
                 ),
                 Container(
-                  width: size.maxWidth * 0.2,
+                  // width: size.maxWidth * .2,
+                  alignment: Alignment.topRight,
+                  child: Text('Price: '),
+                ),
+                Container(
+                    width: size.maxWidth * .3,
+                    alignment: Alignment.topLeft,
+                    child: Text(log.price.toString())),
+                // SizedBox(
+                //   width: size.maxWidth * .09,
+                // ),
+                Spacer(),
+                Container(
+                  width: size.maxWidth * .2,
                   alignment: Alignment.topRight,
                   child: Text('Paid? '),
+                ),
+                Container(
+                  // width: size.maxWidth * .04,
+                  alignment: Alignment.topLeft,
+                  child: Icon(
+                    log.alreadyPaid != null && log.alreadyPaid
+                        ? Icons.check_box
+                        : Icons.clear,
+                    color: log.alreadyPaid != null && log.alreadyPaid
+                        ? Colors.amber
+                        : Colors.grey.withOpacity(.4),
+                    size: 24,
+                  ),
                 ),
               ],
             ),
           ],
           if (log.content != null && log.content.isNotEmpty)
             Container(
-              padding: EdgeInsets.only(left: size.maxWidth * 0.05),
+              padding: EdgeInsets.only(left: size.maxWidth * .09),
               alignment: Alignment.topLeft,
               child: Text(
                 log.content,

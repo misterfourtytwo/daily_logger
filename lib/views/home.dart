@@ -26,15 +26,8 @@ class Home extends StatelessWidget {
                         provider: provider,
                       )),
             )),
-            CreateLogWidget(),
-            // Container(
-            //   padding: EdgeInsets.all(16),
-            //   height: 64,
-            //   child: Text(
-            //     'NAV BAR',
-            //     style: TextStyle(color: Colors.white, fontSize: 32),
-            //   ),
-            // )
+            // Container(height: 600, child:
+            CreateLogWidget(size: MediaQuery.of(context).size),
           ],
         ),
       ),
