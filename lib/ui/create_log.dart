@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:daily_logger/ui/time_field.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -6,12 +9,13 @@ import 'package:daily_logger/models/payment.dart';
 import 'package:daily_logger/models/log_types.dart';
 import 'package:daily_logger/services/config_provider.dart';
 import 'package:daily_logger/services/log_provider.dart';
+import 'package:daily_logger/ui/date_field.dart';
 
 final _sl = GetIt.instance;
 
 class CreateLogWidget extends StatefulWidget {
   CreateLogWidget({@required this.size, Key key}) : super(key: key);
-  Size size;
+  final Size size;
 
   @override
   _CreateLogWidgetState createState() => _CreateLogWidgetState();
@@ -21,14 +25,20 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
   ConfigProvider _config;
   LogProvider _logs;
 
-  TextEditingController _contentController, _titleController, _priceController;
-  bool _paidCheckbox;
+  TextEditingController _contentController,
+      _titleController,
+      _priceController,
+      _searchTextController;
+  bool _paidCheckbox, _taskCompleted;
   int _editId;
 
   double get _height => widget.size.height * .4;
   double get _width => widget.size.width;
   LogTypes get activeType => _config.activeType.value;
   bool get grepToggle => _config.grepToggle.value;
+
+  DateTime _deadlineDate, _taskStartDate, _taskEndDate;
+  TimeOfDay _deadlineTime, _taskStartTime, _taskEndTime;
 
   @override
   void initState() {
@@ -39,6 +49,8 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
     _titleController = TextEditingController();
     _contentController = TextEditingController();
     _priceController = TextEditingController();
+
+    _searchTextController = TextEditingController();
   }
 
   @override
@@ -46,6 +58,7 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
     _titleController.dispose();
     _contentController.dispose();
     _priceController.dispose();
+    _searchTextController.dispose();
     super.dispose();
   }
 
@@ -53,65 +66,128 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
     return Row(
       children: <Widget>[
         Container(
-          width: _width - 188,
-          height: 48,
+          width: min(_width - 194, 438),
+          height: 64,
+          padding: EdgeInsets.only(left: 16, top: 8, bottom: 8),
           child: grepToggle
-              // TODO filter field
-              ? Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextField(),
+              ? Container(
+                  child: TextField(
+                    maxLines: 1,
+                    // maxLength: 64,
+                    maxLengthEnforced: true,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                          borderSide:
+                              BorderSide(color: Colors.white70, width: 3)),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                          borderSide:
+                              BorderSide(color: Colors.white30, width: 3)),
+                      labelText: 'Filter logs',
+                      alignLabelWithHint: true,
+                      labelStyle: TextStyle(
+                        color: Colors.white54,
+                      ),
+                    ),
+                    controller: _searchTextController,
+                  ),
                 )
               // created log type
-              : SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(children: [
-                    FlatButton(
-                      child: Icon(
-                        Icons.note,
-                        size: 24,
-                        color: Colors.teal,
-                      ),
-                      disabledColor: Colors.black38,
-                      onPressed: activeType != LogTypes.note
-                          ? () => changeActiveType(LogTypes.note)
-                          : null,
+              : Container(
+                  // margin: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.white30,
+                      width: 3,
                     ),
-                    FlatButton(
-                      child: Icon(
-                        Icons.attach_money,
-                        size: 24,
-                        color: Colors.amber,
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.zero,
+                    scrollDirection: Axis.horizontal,
+                    child: Row(children: [
+                      OutlineButton.icon(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                        label: Text('Note'),
+                        disabledTextColor: Colors.white,
+                        textColor: Colors.white54,
+                        color: Colors.transparent,
+                        splashColor: Colors.white30,
+                        highlightedBorderColor: Colors.transparent,
+                        borderSide: BorderSide.none,
+                        icon: Icon(
+                          Icons.note,
+                          size: 28,
+                          color: Colors.teal,
+                        ),
+                        onPressed: activeType != LogTypes.note
+                            ? () => changeActiveType(LogTypes.note)
+                            : null,
                       ),
-                      disabledColor: Colors.black38,
-                      onPressed: activeType != LogTypes.payment
-                          ? () => changeActiveType(LogTypes.payment)
-                          : null,
-                    ),
-                    FlatButton(
-                      child: Icon(
-                        Icons.access_alarm,
-                        size: 24,
-                        color: Colors.blue,
+                      Container(width: 3, color: Colors.white30),
+                      OutlineButton.icon(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+                        label: Text('Payment'),
+                        disabledTextColor: Colors.white,
+                        textColor: Colors.white54,
+                        borderSide: BorderSide.none,
+                        highlightedBorderColor: Colors.transparent,
+                        icon: Icon(
+                          Icons.attach_money,
+                          size: 24,
+                          color: Colors.amber,
+                        ),
+                        onPressed: activeType != LogTypes.payment
+                            ? () => changeActiveType(LogTypes.payment)
+                            : null,
                       ),
-                      disabledColor: Colors.black38,
-                      onPressed: activeType != LogTypes.task
-                          ? () => changeActiveType(LogTypes.task)
-                          : null,
-                    ),
-                    FlatButton(
-                      child: Icon(
-                        Icons.update,
-                        size: 24,
-                        color: Colors.pink[300],
+                      Container(width: 3, color: Colors.white30),
+                      OutlineButton.icon(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+
+                        label: Text('Task'),
+                        disabledTextColor: Colors.white,
+                        textColor: Colors.white54,
+                        borderSide: BorderSide.none,
+                        highlightedBorderColor: Colors.transparent,
+                        icon: Icon(
+                          Icons.access_alarm,
+                          size: 24,
+                          color: Colors.blue,
+                        ),
+                        // focusColor: Colors.white30,
+                        onPressed: activeType != LogTypes.task
+                            ? () => changeActiveType(LogTypes.task)
+                            : null,
                       ),
-                      disabledColor: Colors.black38,
-                      onPressed: activeType != LogTypes.continuous
-                          ? () => changeActiveType(LogTypes.continuous)
-                          : null,
-                    ),
-                  ]),
+                      Container(width: 3, color: Colors.white30),
+                      OutlineButton.icon(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                        label: Text('Continuous'),
+                        disabledTextColor: Colors.white,
+                        textColor: Colors.white54,
+                        borderSide: BorderSide.none,
+                        highlightedBorderColor: Colors.transparent,
+                        icon: Icon(
+                          Icons.update,
+                          size: 24,
+                          color: Colors.pink[300],
+                        ),
+                        onPressed: activeType != LogTypes.continuous
+                            ? () => changeActiveType(LogTypes.continuous)
+                            : null,
+                      ),
+                    ]),
+                  ),
                 ),
         ),
+        Spacer(),
         FlatButton(
           child: Text('grep'),
           color: grepToggle ? Colors.black38 : Colors.transparent,
@@ -122,7 +198,12 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
         FlatButton(
           child: Text('settings'),
           // color: grepToggle ? Colors.black38 : Colors.transparent,
-          onPressed: null,
+          onPressed: () {
+            print('pressed settings');
+          },
+        ),
+        SizedBox(
+          width: 18,
         ),
       ],
     );
@@ -163,7 +244,7 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
                       borderSide: BorderSide(color: Colors.white70, width: 3)),
                   enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
-                      borderSide: BorderSide(color: Colors.white54, width: 2)),
+                      borderSide: BorderSide(color: Colors.white30, width: 3)),
                   labelText: 'Log title',
                   alignLabelWithHint: true,
                   labelStyle: TextStyle(
@@ -189,7 +270,7 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
                       borderSide: BorderSide(color: Colors.white70, width: 3)),
                   enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
-                      borderSide: BorderSide(color: Colors.white54, width: 2)),
+                      borderSide: BorderSide(color: Colors.white30, width: 3)),
                   labelText: 'Log content',
                   alignLabelWithHint: true,
                   labelStyle: TextStyle(
@@ -253,7 +334,57 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
                 ),
               ),
             ],
-
+            if (_config.activeType.value == LogTypes.task)
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  children: [
+                    Text('Task deadline:'),
+                    DateFieldWidget(
+                      onChanged: (newDate) => setState(() {
+                        _deadlineDate = newDate;
+                      }),
+                    ),
+                    TimeFieldWidget(
+                      onChanged: (newTime) => setState(() {
+                        _deadlineTime = newTime;
+                      }),
+                    ),
+                    Spacer(),
+                    Text('Completed?'),
+                    Checkbox(
+                      value: _taskCompleted ?? false,
+                      activeColor: Colors.white38,
+                      checkColor: Colors.white70,
+                      focusColor: Colors.pink,
+                      // hoverColor: Colors.pink,
+                      onChanged: (newValue) => setState(() {
+                        _taskCompleted = newValue;
+                      }),
+                    ),
+                  ],
+                ),
+              ),
+            if (_config.activeType.value == LogTypes.continuous)
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  children: [
+                    Text('Happened from'),
+                    DateFieldWidget(
+                      onChanged: (newDate) => setState(() {
+                        _taskStartDate = newDate;
+                      }),
+                    ),
+                    Text('until'),
+                    DateFieldWidget(
+                      onChanged: (newDate) => setState(() {
+                        _taskEndDate = newDate;
+                      }),
+                    ),
+                  ],
+                ),
+              ),
             Container(
                 child: MaterialButton(
               padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),

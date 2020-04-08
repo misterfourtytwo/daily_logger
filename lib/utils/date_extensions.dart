@@ -4,6 +4,7 @@ extension MyDateUtils on DateTime {
   String get hourMinute => DateFormat.Hm().format(this);
   String get hourMinuteSecond => DateFormat.Hms().format(this);
   String get monthDay => DateFormat.MMMMd().format(this);
+  String get yearMonthDay => DateFormat.yMd().format(this);
   bool sameDateWith(DateTime other) =>
       this.year == other.year &&
       this.month == other.month &&
