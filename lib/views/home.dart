@@ -1,10 +1,10 @@
-import 'package:daily_logger/services/log_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-
-import 'package:daily_logger/ui/create_log.dart';
-import 'package:daily_logger/ui/logs_list.dart';
 import 'package:provider/provider.dart';
+
+import 'package:daily_logger/services/log_provider.dart';
+import 'package:daily_logger/widgets/create_log.dart';
+import 'package:daily_logger/widgets/logs_list.dart';
 
 final _sl = GetIt.instance;
 

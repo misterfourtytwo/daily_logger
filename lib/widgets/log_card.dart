@@ -1,18 +1,12 @@
 import 'dart:math';
 
+import 'package:daily_logger/config/strings.dart';
 import 'package:flutter/material.dart';
 
+import 'package:daily_logger/config/styles.dart';
 import 'package:daily_logger/models/log.dart';
-import 'package:daily_logger/models/log_types.dart';
-import 'package:daily_logger/ui/date_bubble.dart';
+import 'package:daily_logger/widgets/date_bubble.dart';
 import 'package:daily_logger/utils/date_extensions.dart';
-
-final logTypeColors = {
-  LogTypes.note: Colors.teal,
-  LogTypes.payment: Colors.amber,
-  LogTypes.task: Colors.blue,
-  LogTypes.continuous: Colors.lightGreen[400],
-};
 
 class LogCardWidget extends StatelessWidget {
   final Log log;
@@ -32,18 +26,18 @@ class LogCardWidget extends StatelessWidget {
           // alignment: Alignment.centerLeft,
           child: Column(
         children: <Widget>[
+          // Date bubble
           if (showDate) ...[
             Divider(
               height: 2,
             ),
-            SizedBox(height: 4),
             Container(
-              // margin: EdgeInsets.only(top: 8),
+              margin: EdgeInsets.symmetric(vertical: 4),
               child: DateBubblepWidget(log.date),
               width: max(size.maxWidth * 0.3, 60),
             ),
-            SizedBox(height: 4),
           ],
+
           Divider(
             height: 2,
           ),
@@ -76,19 +70,15 @@ class LogCardWidget extends StatelessWidget {
                 alignment: Alignment.topRight,
                 child: RichText(
                     text: TextSpan(
-                  text: '[${log.readableType}]',
+                  text: '[${Strings.logTypeNames[log.type]}]',
                   style: TextStyle(
-                    color: logTypeColors[log.type],
+                    color: Styles.logTypeColors[log.type],
                   ),
                 )),
               )
             ],
           ),
-          if (!log.isInstant) ...[
-            Container(height: 42, color: Colors.green),
-            // if (log.i)
-          ],
-          if (log.isPayment) ...[
+          if (log.isPayment)
             Row(
               children: [
                 SizedBox(
@@ -127,7 +117,6 @@ class LogCardWidget extends StatelessWidget {
                 ),
               ],
             ),
-          ],
           if (log.content != null && log.content.isNotEmpty)
             Container(
               padding: EdgeInsets.only(left: size.maxWidth * .09),

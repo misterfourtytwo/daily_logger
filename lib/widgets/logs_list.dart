@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'package:daily_logger/services/log_provider.dart';
-import 'package:daily_logger/ui/log_card.dart';
 import 'package:daily_logger/utils/date_extensions.dart';
+import 'package:daily_logger/widgets/log_card.dart';
 
 class LogListWidget extends StatefulWidget {
   const LogListWidget({this.provider, Key key}) : super(key: key);

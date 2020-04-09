@@ -24,13 +24,10 @@ class LogAdapter extends TypeAdapter<Log> {
       ..created = fields[4] as DateTime
       ..lastUpdate = fields[5] as DateTime
       ..tags = (fields[6] as List)?.cast<String>()
-      ..isInstant = fields[7] as bool
       ..started = fields[8] as DateTime
       ..finished = fields[9] as DateTime
-      ..isTask = fields[10] as bool
       ..deadline = fields[11] as DateTime
       ..completed = fields[12] as bool
-      ..isPayment = fields[13] as bool
       ..price = fields[14] as Payment
       ..alreadyPaid = fields[15] as bool;
   }
@@ -38,7 +35,7 @@ class LogAdapter extends TypeAdapter<Log> {
   @override
   void write(BinaryWriter writer, Log obj) {
     writer
-      ..writeByte(16)
+      ..writeByte(13)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -53,20 +50,14 @@ class LogAdapter extends TypeAdapter<Log> {
       ..write(obj.lastUpdate)
       ..writeByte(6)
       ..write(obj.tags)
-      ..writeByte(7)
-      ..write(obj.isInstant)
       ..writeByte(8)
       ..write(obj.started)
       ..writeByte(9)
       ..write(obj.finished)
-      ..writeByte(10)
-      ..write(obj.isTask)
       ..writeByte(11)
       ..write(obj.deadline)
       ..writeByte(12)
       ..write(obj.completed)
-      ..writeByte(13)
-      ..write(obj.isPayment)
       ..writeByte(14)
       ..write(obj.price)
       ..writeByte(15)

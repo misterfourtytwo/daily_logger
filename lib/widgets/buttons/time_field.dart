@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 
-import 'package:daily_logger/utils/date_extensions.dart';
+typedef UpdateCallback(TimeOfDay newTime);
 
-typedef UpdateCallback(DateTime newDate);
-
-class DateFieldWidget extends StatefulWidget {
-  DateFieldWidget({this.value, this.onChanged, Key key}) : super(key: key);
-  final DateTime value;
+class TimeFieldWidget extends StatefulWidget {
+  TimeFieldWidget({this.value, this.onChanged, Key key}) : super(key: key);
+  final TimeOfDay value;
   final UpdateCallback onChanged;
 
   @override
-  _DateFieldWidgetState createState() => _DateFieldWidgetState();
+  _TimeFieldWidgetState createState() => _TimeFieldWidgetState();
 }
 
-class _DateFieldWidgetState extends State<DateFieldWidget> {
-  DateTime value;
+class _TimeFieldWidgetState extends State<TimeFieldWidget> {
+  TimeOfDay value;
   bool focus;
   bool hover;
 
@@ -50,18 +48,17 @@ class _DateFieldWidgetState extends State<DateFieldWidget> {
           // animationDuration: Duration(seconds: 1),
           child: InkWell(
             onTap: () async {
-              DateTime pickedDate = await showDatePicker(
+              TimeOfDay pickedTime = await showTimePicker(
                   context: context,
                   // initialDatePickerMode: DatePickerMode.day,
                   // initialEntryMode: DatePickerEntryMode.input,
-                  initialDate: value ?? DateTime.now(),
-                  firstDate: DateTime(1972),
-                  lastDate: DateTime(2100));
-              if (pickedDate != null && pickedDate != value)
-                setState(() {
-                  value = pickedDate;
-                  widget.onChanged(value);
-                });
+                  initialTime: value ?? TimeOfDay.now());
+
+              if (pickedTime != null && pickedTime != value) {}
+              setState(() {
+                value = pickedTime;
+                widget.onChanged(value);
+              });
             },
             canRequestFocus: true,
             onFocusChange: (bool value) {
@@ -80,30 +77,11 @@ class _DateFieldWidgetState extends State<DateFieldWidget> {
             },
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Text(_dateString),
+              child: Text(value?.format(context) ?? 'Time'),
             ),
           ),
         ),
       ),
     );
-  }
-
-  String get _dateString {
-    final today = DateTime.now();
-
-    if (value == null) return 'Date';
-
-    if (value.year == today.year) {
-      if (value.month == today.month) if (value.day == today.day) {
-        return 'Today';
-      } else {
-        return value.day.toString();
-      }
-      else {
-        return value.monthDay;
-      }
-    } else {
-      return value.yearMonthDay;
-    }
   }
 }

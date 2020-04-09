@@ -38,6 +38,7 @@ _initHive() async {
   Hive.registerAdapter(LogAdapter());
 
   await Hive.openBox('config');
+  await Hive.openBox('create log');
   await Hive.openBox('logs')
       // ..clear()
       //

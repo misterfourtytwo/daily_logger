@@ -1,17 +1,9 @@
-import 'package:daily_logger/models/log_types.dart';
 import 'package:hive/hive.dart';
 
+import 'package:daily_logger/models/log_types.dart';
 import 'package:daily_logger/models/payment.dart';
 
 part 'log.g.dart';
-
-const _readableTypes = {
-  LogTypes.task: 'task',
-  LogTypes.note: 'note',
-  LogTypes.payment: 'payment',
-  LogTypes.complex: 'complex',
-  LogTypes.continuous: 'continuous',
-};
 
 @HiveType(typeId: 0)
 class Log {
@@ -31,22 +23,22 @@ class Log {
   @HiveField(6)
   List<String> tags;
 
-  @HiveField(7)
-  bool isInstant;
+  // @HiveField(7)
+  bool get isInstant => type != LogTypes.continuous;
   @HiveField(8)
   DateTime started;
   @HiveField(9)
   DateTime finished;
 
-  @HiveField(10)
-  bool isTask;
+  // @HiveField(10)
+  bool get isTask => type == LogTypes.task;
   @HiveField(11)
   DateTime deadline;
   @HiveField(12)
   bool completed;
 
-  @HiveField(13)
-  bool isPayment;
+  // @HiveField(13)
+  bool get isPayment => type == LogTypes.payment;
   @HiveField(14)
   Payment price;
   @HiveField(15)
@@ -55,7 +47,6 @@ class Log {
   DateTime get date =>
       (isTask ? deadline : isInstant ? started : finished ?? started) ??
       created;
-  String get readableType => _readableTypes[type];
 
   Log();
   factory Log.empty() => Log();
@@ -65,12 +56,9 @@ class Log {
   }) {
     final log = Log();
     log.type = LogTypes.note;
-    log.title = '';
-    log.content = '';
+    log.title = title ?? '';
+    log.content = content ?? '';
     log.tags = [];
-    log.isInstant = true;
-    log.isTask = false;
-    log.isPayment = false;
     return log;
   }
 
@@ -85,59 +73,42 @@ class Log {
     log.title = title ?? '';
     log.content = content ?? '';
     log.tags = [];
-    log.isInstant = false;
     log.started = start;
     log.finished = finish;
-    log.isTask = false;
-    log.isPayment = false;
     return log;
   }
 
-  factory Log.task() {
+  factory Log.task({
+    String title,
+    String content,
+    DateTime deadline,
+    bool completed,
+  }) {
     final log = Log();
     log.type = LogTypes.task;
-    log.title = '';
-    log.content = '';
+    log.title = title ?? '';
+    log.content = content ?? '';
     log.tags = [];
-    log.isInstant = true;
-    log.isTask = true;
-    log.completed = false;
-    log.isPayment = false;
+    log.deadline = deadline;
+    log.completed = completed ?? false;
     return log;
   }
 
-  factory Log.payment() {
+  factory Log.payment({
+    String title,
+    String content,
+    Payment price,
+    bool alreadyPaid,
+  }) {
     final log = Log();
     log.type = LogTypes.payment;
-    log.title = '';
-    log.content = '';
+    log.title = title ?? '';
+    log.content = content ?? '';
     log.tags = [];
-    log.isInstant = true;
-    log.isTask = false;
-    log.isPayment = true;
-    log.alreadyPaid = false;
-    log.price = Payment();
+    log.alreadyPaid = alreadyPaid ?? false;
+    log.price = price;
     return log;
   }
-
-  // factory Log.complex({
-  //   isInstant = true,
-  //   tags = const [],
-  //   isTask = false,
-  //   isPayment = false,
-  // }) {
-  //   final log = Log();
-  //   log.type = LogTypes.complex;
-  //   log.title = '';
-  //   log.content = '';
-  //   log.tags = tags;
-  //   log.isInstant = isInstant;
-  //   log.isTask = false;
-  //   log.isPayment = true;
-  //   log.alreadyPaid = false;
-  //   log.price = Payment();
-  //   return log;
-  // }
 
   Duration get elapsed => isInstant ? 0 : started.difference(finished);
 
