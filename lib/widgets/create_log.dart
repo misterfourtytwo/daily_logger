@@ -1,17 +1,17 @@
 import 'dart:math';
 
+import 'package:daily_logger/widgets/buttons/focusable_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:provider/provider.dart';
 
 import 'package:daily_logger/config/strings.dart';
 import 'package:daily_logger/config/styles.dart';
 import 'package:daily_logger/models/log_types.dart';
 import 'package:daily_logger/services/config_provider.dart';
 import 'package:daily_logger/services/create_log_provider.dart';
-import 'package:daily_logger/widgets/buttons/date_field.dart';
-import 'package:daily_logger/widgets/buttons/time_field.dart';
+import 'package:daily_logger/utils/date_extensions.dart';
 import 'package:daily_logger/widgets/buttons/type_button.dart';
-import 'package:provider/provider.dart';
 
 final _sl = GetIt.instance;
 
@@ -112,21 +112,21 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
               buildTaskRow(context),
             if (_createLogProvider.type == LogTypes.continuous)
               buildContinuousRow(context),
-
-            Container(
-                child: MaterialButton(
-              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            FocusableButtonWidget(
               onPressed: _createLogProvider.title.isEmpty
                   ? null
                   : () {
                       _createLogProvider.saveLog();
                       _clearFields();
                     },
-              child: Text(
-                'Log!',
-                style: TextStyle(fontSize: 18),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                child: Text(
+                  'Log!',
+                  style: TextStyle(fontSize: 18),
+                ),
               ),
-            )),
+            ),
           ],
         ),
       ),
@@ -189,22 +189,25 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
                 ),
         ),
         Spacer(),
-        FlatButton(
-          child: Text('grep'),
-          color: grepToggle ? Colors.white38 : Colors.transparent,
+        FocusableButtonWidget(
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color:
+                _config.grepToggle.value ? Colors.white24 : Colors.transparent,
+            child: Text('grep'),
+          ),
           onPressed: () => setState(() {
             _config.grepToggle.value ^= true;
           }),
         ),
-        FlatButton(
-          child: Text('settings'),
-          // color: grepToggle ? Colors.black38 : Colors.transparent,
+        FocusableButtonWidget(
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Text('settings'),
+          ),
           onPressed: () {
             print('pressed settings');
           },
-        ),
-        SizedBox(
-          width: 18,
         ),
       ],
     );
@@ -251,21 +254,71 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
     );
   }
 
+  String dateString(DateTime value) {
+    final today = DateTime.now();
+
+    if (value == null || value.date == DateTime(0)) return 'Date';
+
+    if (value.year == today.year) {
+      if (value.month == today.month) if (value.day == today.day) {
+        return 'Today';
+      } else {
+        return value.day.toString();
+      }
+      else {
+        return value.monthDay;
+      }
+    } else {
+      return value.yearMonthDay;
+    }
+  }
+
   Widget buildTaskRow(BuildContext context) => Container(
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
           children: [
             Text('Task deadline:'),
-            DateFieldWidget(
-              onChanged: (newDate) => setState(() {
-                _createLogProvider.deadlineDate = newDate;
-              }),
-            ),
-            TimeFieldWidget(
-              onChanged: (newTime) => setState(() {
-                _createLogProvider.deadlineTime = newTime;
-              }),
-            ),
+            FocusableButtonWidget(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+                  child: Text(dateString(_createLogProvider.deadlineDate)),
+                ),
+                onPressed: () async {
+                  DateTime pickedDate = await showDatePicker(
+                      context: context,
+                      // initialDatePickerMode: DatePickerMode.day,
+                      // initialEntryMode: DatePickerEntryMode.input,
+                      initialDate:
+                          _createLogProvider.deadlineDate ?? DateTime.now(),
+                      firstDate: DateTime(1972),
+                      lastDate: DateTime(2100));
+                  if (pickedDate != null &&
+                      pickedDate != _createLogProvider.deadlineDate)
+                    setState(() {
+                      _createLogProvider.deadlineDate = pickedDate;
+                    });
+                }),
+            FocusableButtonWidget(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+                  child: Text(
+                      _createLogProvider.deadlineTime?.format(context) ??
+                          'Time'),
+                ),
+                onPressed: () async {
+                  TimeOfDay pickedTime = await showTimePicker(
+                      context: context,
+                      // initialDatePickerMode: DatePickerMode.day,
+                      // initialEntryMode: DatePickerEntryMode.input,
+                      initialTime:
+                          _createLogProvider.deadlineTime ?? TimeOfDay.now());
+
+                  if (pickedTime != null &&
+                      pickedTime != _createLogProvider.deadlineTime) {}
+                  setState(() {
+                    _createLogProvider.deadlineTime = pickedTime;
+                  });
+                }),
             Spacer(),
             Text('Completed?'),
             Checkbox(
@@ -290,15 +343,95 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
             builder: (context, provider, _) => Row(
               children: [
                 Text('Happened from'),
-                DateFieldWidget(
-                  value: provider.businessStartDate,
-                  onChanged: (newDate) => provider.businessStartDate = newDate,
-                ),
+                FocusableButtonWidget(
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+                      child: Text(
+                          dateString(_createLogProvider.businessStartDate)),
+                    ),
+                    onPressed: () async {
+                      DateTime pickedDate = await showDatePicker(
+                          context: context,
+                          // initialDatePickerMode: DatePickerMode.day,
+                          // initialEntryMode: DatePickerEntryMode.input,
+                          initialDate: _createLogProvider.businessStartDate ??
+                              DateTime.now(),
+                          firstDate: DateTime(1972),
+                          lastDate: DateTime(2100));
+                      if (pickedDate != null &&
+                          pickedDate != _createLogProvider.businessStartDate)
+                        setState(() {
+                          _createLogProvider.businessStartDate = pickedDate;
+                        });
+                    }),
+                FocusableButtonWidget(
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+                      child: Text(_createLogProvider.businessStartTime
+                              ?.format(context) ??
+                          'Time'),
+                    ),
+                    onPressed: () async {
+                      TimeOfDay pickedTime = await showTimePicker(
+                          context: context,
+                          // initialDatePickerMode: DatePickerMode.day,
+                          // initialEntryMode: DatePickerEntryMode.input,
+                          initialTime: _createLogProvider.businessStartTime ??
+                              TimeOfDay.now());
+
+                      if (pickedTime != null &&
+                          pickedTime != _createLogProvider.businessStartTime) {}
+                      setState(() {
+                        _createLogProvider.businessStartTime = pickedTime;
+                      });
+                    }),
                 Text('until'),
-                DateFieldWidget(
-                  value: provider.businessEndDate,
-                  onChanged: (newDate) => provider.businessEndDate = newDate,
-                ),
+                FocusableButtonWidget(
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+                      child:
+                          Text(dateString(_createLogProvider.businessEndDate)),
+                    ),
+                    onPressed: () async {
+                      DateTime pickedDate = await showDatePicker(
+                          context: context,
+                          // initialDatePickerMode: DatePickerMode.day,
+                          // initialEntryMode: DatePickerEntryMode.input,
+                          initialDate: _createLogProvider.businessEndDate ??
+                              DateTime.now(),
+                          firstDate: DateTime(1972),
+                          lastDate: DateTime(2100));
+                      if (pickedDate != null &&
+                          pickedDate != _createLogProvider.businessEndDate)
+                        setState(() {
+                          _createLogProvider.businessEndDate = pickedDate;
+                        });
+                    }),
+                FocusableButtonWidget(
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+                      child: Text(
+                          _createLogProvider.businessEndTime?.format(context) ??
+                              'Time'),
+                    ),
+                    onPressed: () async {
+                      TimeOfDay pickedTime = await showTimePicker(
+                          context: context,
+                          // initialDatePickerMode: DatePickerMode.day,
+                          // initialEntryMode: DatePickerEntryMode.input,
+                          initialTime: _createLogProvider.businessEndTime ??
+                              TimeOfDay.now());
+
+                      if (pickedTime != null &&
+                          pickedTime != _createLogProvider.businessEndTime) {}
+                      setState(() {
+                        _createLogProvider.businessEndTime = pickedTime;
+                      });
+                    }),
               ],
             ),
           ),

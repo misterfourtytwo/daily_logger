@@ -44,9 +44,19 @@ class Log {
   @HiveField(15)
   bool alreadyPaid;
 
-  DateTime get date =>
-      (isTask ? deadline : isInstant ? started : finished ?? started) ??
-      created;
+  DateTime get date {
+    var res;
+    // = (isTask ? deadline : isInstant ? started : finished ?? started);
+    if (isTask) {
+      res = deadline;
+    } else if (!isInstant) {
+      res = started;
+    } else {
+      res = finished == null || finished.year == 0 ? started : finished;
+    }
+    if (res == null || res.year == 0) res = created;
+    return res;
+  }
 
   Log();
   factory Log.empty() => Log();

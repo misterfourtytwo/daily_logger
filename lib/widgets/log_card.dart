@@ -55,7 +55,6 @@ class LogCardWidget extends StatelessWidget {
               Expanded(
                 child: Container(
                   child: Text(
-                    // text:
                     log.title,
                     style: TextStyle(
                       fontSize: 14,

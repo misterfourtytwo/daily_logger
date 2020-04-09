@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 
-typedef UpdateCallback(TimeOfDay newTime);
-
-class TimeFieldWidget extends StatefulWidget {
-  TimeFieldWidget({this.value, this.onChanged, Key key}) : super(key: key);
-  final TimeOfDay value;
-  final UpdateCallback onChanged;
+class FocusableButtonWidget extends StatefulWidget {
+  FocusableButtonWidget({this.child, this.onPressed, Key key})
+      : super(key: key);
+  final Widget child;
+  final VoidCallback onPressed;
 
   @override
-  _TimeFieldWidgetState createState() => _TimeFieldWidgetState();
+  _FocusableButtonWidgetState createState() => _FocusableButtonWidgetState();
 }
 
-class _TimeFieldWidgetState extends State<TimeFieldWidget> {
-  TimeOfDay value;
+class _FocusableButtonWidgetState extends State<FocusableButtonWidget> {
   bool focus;
   bool hover;
 
@@ -21,24 +19,26 @@ class _TimeFieldWidgetState extends State<TimeFieldWidget> {
     super.initState();
     focus = false;
     hover = false;
-    value = widget.value;
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+      // margin: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
       child: Semantics(
         container: true,
         button: true,
         enabled: true,
         child: Material(
           elevation: 1,
+
           shape: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(
               width: 3,
-              color: hover || focus ? Colors.white70 : Colors.white30,
+              color: widget.onPressed == null
+                  ? Colors.transparent
+                  : hover || focus ? Colors.white70 : Colors.white30,
             ),
           ),
           type: MaterialType.card,
@@ -47,19 +47,7 @@ class _TimeFieldWidgetState extends State<TimeFieldWidget> {
 
           // animationDuration: Duration(seconds: 1),
           child: InkWell(
-            onTap: () async {
-              TimeOfDay pickedTime = await showTimePicker(
-                  context: context,
-                  // initialDatePickerMode: DatePickerMode.day,
-                  // initialEntryMode: DatePickerEntryMode.input,
-                  initialTime: value ?? TimeOfDay.now());
-
-              if (pickedTime != null && pickedTime != value) {}
-              setState(() {
-                value = pickedTime;
-                widget.onChanged(value);
-              });
-            },
+            onTap: widget.onPressed,
             canRequestFocus: true,
             onFocusChange: (bool value) {
               setState(() {
@@ -75,10 +63,7 @@ class _TimeFieldWidgetState extends State<TimeFieldWidget> {
                 hover = value;
               });
             },
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Text(value?.format(context) ?? 'Time'),
-            ),
+            child: widget.child,
           ),
         ),
       ),
