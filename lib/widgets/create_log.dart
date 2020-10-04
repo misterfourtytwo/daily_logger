@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:daily_logger/services/log_provider.dart';
 import 'package:daily_logger/widgets/buttons/focusable_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -27,6 +28,7 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
   TextEditingController _contentController, _titleController, _priceController;
   ConfigProvider _config;
   CreateLogProvider _createLogProvider;
+  LogProvider _logs;
 
   TextEditingController _searchTextController;
 
@@ -39,6 +41,7 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
   void initState() {
     super.initState();
     _config = _sl<ConfigProvider>();
+    _logs = _sl<LogProvider>();
     _createLogProvider = CreateLogProvider(this._setFields);
 
     _titleController = TextEditingController();
@@ -76,57 +79,59 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
           children: <Widget>[
             buildMenuRow(context),
             // title field
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: TextField(
-                controller: _titleController,
-                onChanged: (value) => setState(() {
-                  _createLogProvider.title = value;
-                }),
-                decoration: Styles.myInputDecoration(labelText: 'Log title'),
-                maxLines: 1,
-                maxLength: 64,
-                maxLengthEnforced: true,
-              ),
-            ),
-            // content field
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: TextField(
-                maxLines: 4,
-                maxLength: 640,
-                maxLengthEnforced: true,
-                decoration: Styles.myInputDecoration(
-                  labelText: 'Log content',
+            if (!grepToggle) ...[
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: TextField(
+                  controller: _titleController,
+                  onChanged: (value) => setState(() {
+                    _createLogProvider.title = value;
+                  }),
+                  decoration: Styles.myInputDecoration(labelText: 'Log title'),
+                  maxLines: 1,
+                  maxLength: 64,
+                  maxLengthEnforced: true,
                 ),
-                controller: _contentController,
-                onChanged: (value) => setState(() {
-                  _createLogProvider.content = value;
-                }),
               ),
-            ),
+              // content field
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: TextField(
+                  maxLines: 4,
+                  maxLength: 640,
+                  maxLengthEnforced: true,
+                  decoration: Styles.myInputDecoration(
+                    labelText: 'Log content',
+                  ),
+                  controller: _contentController,
+                  onChanged: (value) => setState(() {
+                    _createLogProvider.content = value;
+                  }),
+                ),
+              ),
 
-            if (_createLogProvider.type == LogTypes.payment)
-              buildPaymentRow(context),
-            if (_createLogProvider.type == LogTypes.task)
-              buildTaskRow(context),
-            if (_createLogProvider.type == LogTypes.continuous)
-              buildContinuousRow(context),
-            FocusableButtonWidget(
-              onPressed: _createLogProvider.title.isEmpty
-                  ? null
-                  : () {
-                      _createLogProvider.saveLog();
-                      _clearFields();
-                    },
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                child: Text(
-                  'Log!',
-                  style: TextStyle(fontSize: 18),
+              if (_createLogProvider.type == LogTypes.payment)
+                buildPaymentRow(context),
+              if (_createLogProvider.type == LogTypes.task)
+                buildTaskRow(context),
+              if (_createLogProvider.type == LogTypes.continuous)
+                buildContinuousRow(context),
+              FocusableButtonWidget(
+                onPressed: _createLogProvider.title.isEmpty
+                    ? null
+                    : () {
+                        _createLogProvider.saveLog();
+                        _clearFields();
+                      },
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  child: Text(
+                    'Log!',
+                    style: TextStyle(fontSize: 18),
+                  ),
                 ),
-              ),
-            ),
+              )
+            ]
           ],
         ),
       ),
@@ -137,7 +142,7 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
     return Row(
       children: <Widget>[
         Container(
-          width: min(_width - 194, 438),
+          width: min(_width - 190, 446),
           height: 64,
           padding: EdgeInsets.only(left: 16, top: 8, bottom: 8),
           child: grepToggle
@@ -145,6 +150,9 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
                   child: TextField(
                     maxLines: 1,
                     controller: _searchTextController,
+                    onChanged: (value) {
+                      _logs.setGrepString(value);
+                    },
                     toolbarOptions: ToolbarOptions(
                         copy: true, paste: true, selectAll: true, cut: true),
                     // maxLength: 64,
@@ -189,25 +197,32 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
                 ),
         ),
         Spacer(),
-        FocusableButtonWidget(
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            color:
-                _config.grepToggle.value ? Colors.white24 : Colors.transparent,
-            child: Text('grep'),
+        Padding(
+          padding: EdgeInsets.only(right: 12),
+          child: FocusableButtonWidget(
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              color: _config.grepToggle.value
+                  ? Colors.white24
+                  : Colors.transparent,
+              child: Text('grep'),
+            ),
+            onPressed: () => setState(() {
+              _config.grepToggle.value ^= true;
+            }),
           ),
-          onPressed: () => setState(() {
-            _config.grepToggle.value ^= true;
-          }),
         ),
-        FocusableButtonWidget(
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text('settings'),
+        Padding(
+          padding: EdgeInsets.only(right: 20),
+          child: FocusableButtonWidget(
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Text('settings'),
+            ),
+            onPressed: () {
+              print('pressed settings');
+            },
           ),
-          onPressed: () {
-            print('pressed settings');
-          },
         ),
       ],
     );
@@ -223,6 +238,9 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: <Widget>[
+          // Listener(
+          //   onPointerDown: (event) => print(event),
+          //   child:
           Container(
             width: 120,
             child: TextField(
@@ -234,6 +252,7 @@ class _CreateLogWidgetState extends State<CreateLogWidget> {
                   TextInputType.numberWithOptions(signed: true, decimal: true),
             ),
           ),
+          // ),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Text('\$'),

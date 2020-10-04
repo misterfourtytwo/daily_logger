@@ -19,9 +19,8 @@ void main() async {
   runApp(App());
 }
 
-const _desktopDbPath =
-// './db';
-    '/home/mr42/Public/flutter/hive';
+const _desktopDbPath = './db';
+// '/home/mr42/Public/flutter/hive';
 
 /// open database and boxes in it
 _initHive() async {

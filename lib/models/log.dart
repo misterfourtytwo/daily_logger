@@ -58,8 +58,11 @@ class Log {
     return res;
   }
 
-  Log();
+  Log()
+      : created = DateTime.now(),
+        lastUpdate = DateTime.now();
   factory Log.empty() => Log();
+
   factory Log.note({
     String title,
     String content,

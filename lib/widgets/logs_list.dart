@@ -43,21 +43,35 @@ class _LogListWidgetState extends State<LogListWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return ScrollablePositionedList.builder(
-      initialScrollIndex: max(1, provider.logs.length) - 1,
-      itemCount: provider.logs.length,
-      // reverse: true,
-      // physics: FixedExtentScrollPhysics(),
-      itemBuilder: (context, i) => provider.logs.isEmpty
-          ? ListTile(title: Text('Log is empty'))
-          : LogCardWidget(
-              log: provider.logs[i],
-              showDate: i == 0 ||
-                  !provider.logs[i].date
-                      .sameDateWith(provider.logs[i - 1].date)),
-      itemScrollController: _feedPositionController,
-      itemPositionsListener: _feedPositionListener,
-    );
+    // return ListView(
+    //     reverse: true,
+    //     children: provider.logs.isEmpty
+    //         ? [ListTile(title: Text('Log is empty'))]
+    //         : [
+    //             for (int i = provider.logs.length - 1; i >= 0; i--)
+    //               LogCardWidget(
+    //                   log: provider.logs[i],
+    //                   showDate: i == 0 ||
+    //                       !provider.logs[i].date
+    //                           .sameDateWith(provider.logs[i - 1].date))
+    //           ]);
+    return provider.viewNeedsUpdate
+        ? Center(child: CircularProgressIndicator())
+        : ScrollablePositionedList.builder(
+            initialScrollIndex: max(1, provider.logs.length) - 1,
+            itemCount: provider.logs.length,
+            // reverse: true,
+            // physics: FixedExtentScrollPhysics(),
+            itemBuilder: (context, i) => provider.logs.isEmpty
+                ? ListTile(title: Text('Log is empty'))
+                : LogCardWidget(
+                    log: provider.logs[i],
+                    showDate: i == 0 ||
+                        !provider.logs[i].date
+                            .sameDateWith(provider.logs[i - 1].date)),
+            itemScrollController: _feedPositionController,
+            itemPositionsListener: _feedPositionListener,
+          );
   }
 
   void scrollTo(int element) {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-// TODO convert to utc when backing up on server
+// maybe TODO convert to utc when backing up on server
 extension MyDateUtils on DateTime {
   DateTime get date => DateTime(this.year, this.month, this.day);
   String get hourMinute => DateFormat.Hm().format(this);
